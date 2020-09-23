@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 
 const { generarJWT } = require('../helpers/jwt')
 
+const { googleVerify } = require('../helpers/google-verify')
 const login = async (req, res = response)=>{
 
 
@@ -48,7 +49,50 @@ const login = async (req, res = response)=>{
 
 }
 
+const googleSignIn = async (req, res=response) =>{
+
+    
+    try {
+        const {name, email, picture} = await googleVerify(req.body.token);
+        const usuarioDB = await Usuario.findOne({email});
+
+        let usuario;
+        if (!usuarioDB){
+            usuario = new Usuario({
+                nombre: name,
+                email: email,
+                img: picture,
+                password: '=)',
+                google: true
+            })
+        }else{
+            //existe usuario
+            usuario = usuarioDB;
+            usuario.google = true;
+            // usuario.password = '=)' si queremos que mantenga las dos autenticaciones
+        }
+
+        //guardar en DB
+       await usuario.save();
+
+       const token = await generarJWT(usuario._id)
+
+        res.json({
+            ok: true,
+            msg: "Google signin",
+            token
+        })
+    } catch (error) {
+        res.status(401).json({
+            ok: false,
+            msg: "Token no correcto"
+        })
+    }
+
+}
+
 
 module.exports = {
-    login
+    login,
+    googleSignIn
 }
