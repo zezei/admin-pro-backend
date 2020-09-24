@@ -26,6 +26,10 @@ router.post('/',
 
 router.put('/:id',
     [
+        check('hospital', "El id del medico debe ser valido").isMongoId(),
+        check('nombre', "El nombre del medico es obligatorio").not().isEmpty(),
+        validarCampos,
+        verificaToken
     ],
     actualizarMedico);
 

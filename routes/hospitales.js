@@ -24,11 +24,15 @@ router.post('/',
 
 router.put('/:id',
     [
+        verificaToken,
+        check('nombre', 'Nombre del hospital obligatorio').not().isEmpty(),
+        validarCampos
     ],
     actualizarHospital);
 
 router.delete('/:id',
     [
+        verificaToken,
     ],
     borrarHospital);
 
